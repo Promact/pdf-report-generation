@@ -1,0 +1,7 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/code-to-pdf/QuestPdfExample/.vs
+/code-to-pdf/QuestPdfExample/obj
