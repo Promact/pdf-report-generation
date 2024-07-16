@@ -4,25 +4,30 @@ using PuppeteerSharp.Media;
 //File path to your HTML script
 var html = File.ReadAllText("HTML_FILE_PATH");
 
-//Set pdf options
-var pdfOptions = new PdfOptions()
+//Downloaded chrome instance will be used
+await new BrowserFetcher(new BrowserFetcherOptions()
 {
-    Format = PaperFormat.A4
-};
+    Browser = SupportedBrowser.Chrome
+}).DownloadAsync();
 
-//Launch chromium instance
-using (var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+//Browser launch options
+var browser = await Puppeteer.LaunchAsync(new LaunchOptions
 {
-    //Set false for debugging
-    Headless = true,
+    Headless = true
+});
 
-    //File path to your chrome exe
-    ExecutablePath = "CHROME_EXECUTABLE_PATH"
-}))
+using var page = await browser.NewPageAsync();
+await page.SetContentAsync(html);
+await page.PdfAsync("outputFile.pdf", new PdfOptions
 {
-    using (var page = await browser.NewPageAsync())
+    Format = PaperFormat.A4,
+    DisplayHeaderFooter = true,
+    MarginOptions = new MarginOptions
     {
-        await page.SetContentAsync(html);
-        await page.PdfAsync("invoice.pdf", pdfOptions);
-    }
-}
+        Top = "20px",
+        Right = "20px",
+        Bottom = "40px",
+        Left = "20px"
+    },
+    FooterTemplate = "<div id=\"footer-template\" style=\"font-size:10px !important; color:#808080; padding-left:10px\">Footer Text</div>"
+});
