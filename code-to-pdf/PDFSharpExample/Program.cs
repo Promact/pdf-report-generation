@@ -49,6 +49,3 @@ gfx.DrawString("$300.00", fontSubTitle, XBrushes.Black, new XRect(page.Width.Poi
 // Save the document
 string filename = "Invoice.pdf";
 document.Save(filename);
-
-// Open the document
-Process.Start(new ProcessStartInfo(filename) { UseShellExecute = true });
