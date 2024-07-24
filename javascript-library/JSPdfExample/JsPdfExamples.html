@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>jsPDF Examples</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script src="script.js" defer></script>
+  </head>
+  <body>
+    <button onclick="generatePDF()">Generate Basic PDF</button>
+    <button onclick="generateShapesAndFontsPDF()">
+      Generate PDF with Shapes and Fonts
+    </button>
+    <button onclick="generateTablePDF()">Generate PDF with Table</button>
+    <button onclick="generateHyperlinkPDF()">
+      Generate PDF with Hyperlinks
+    </button>
+    <button onclick="generateImagePDF()">Generate PDF with Image</button>
+    <button onclick="generateMultiLineTextPDF()">
+      Generate PDF with Multi-line Text
+    </button>
+  </body>
+</html>
