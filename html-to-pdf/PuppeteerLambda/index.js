@@ -1,12 +1,52 @@
 const chromium = require("@sparticuz/chromium");
 const puppeteer = require("puppeteer-core");
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 
-console.log("Loading function");
+// Helper function to get PDF options with defaults
+const getPdfOptions = (options) => {
+  return {
+    format: options && options.format ? options.format : "A4",
+    printBackground:
+      options && options.printBackground !== undefined
+        ? options.printBackground
+        : true,
+    margin:
+      options && options.margin
+        ? options.margin
+        : {
+            top: "1in",
+            right: "1in",
+            bottom: "1in",
+            left: "1in",
+          },
+    width: options && options.width !== undefined ? options.width : undefined,
+    height:
+      options && options.height !== undefined ? options.height : undefined,
+    landscape:
+      options && options.landscape !== undefined ? options.landscape : false,
+    displayHeaderFooter:
+      options && options.displayHeaderFooter !== undefined
+        ? options.displayHeaderFooter
+        : false,
+    headerTemplate:
+      options && options.headerTemplate ? options.headerTemplate : "",
+    footerTemplate:
+      options && options.footerTemplate ? options.footerTemplate : "",
+  };
+};
 
-exports.handler = async (event, context) => {
-  let result = null;
+exports.handler = async (event) => {
+  const body = event.body;
+  const { url, html, options } = JSON.parse(body);
+
+  if (!url && !html) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "Either 'url' or 'html' is required" }),
+    };
+  }
+
   let browser = null;
+
   try {
     browser = await puppeteer.launch({
       args: chromium.args,
@@ -16,36 +56,33 @@ exports.handler = async (event, context) => {
     });
 
     const page = await browser.newPage();
-    await page.setContent(event.html);
-    const pdfBuffer = await page.pdf({ format: "A4" });
 
-    const s3Client = new S3Client({
-      region: process.env.AWS_BUCKET_REGION,
-      credentials: {
-        accessKeyId: process.env.ACCESS_KEY,
-        secretAccessKey: process.env.SECRET_KEY,
-      },
-    });
-    const bucketName = process.env.AWS_BUCKET_NAME;
-    const command = new PutObjectCommand({
-      Bucket: bucketName,
-      Key: `pdfs/${Date.now()}.pdf`,
-      Body: pdfBuffer,
-    });
-    try {
-      const response = await s3Client.send(command);
-      console.log(response);
-    } catch (err) {
-      console.error(err);
+    if (url) {
+      await page.goto(url, { waitUntil: "networkidle2" });
+    } else {
+      await page.setContent(html, { waitUntil: "networkidle2" });
     }
-    result = `PDF saved to ${command.Bucket}/${command.Key}`;
+
+    const pdfBuffer = await page.pdf(getPdfOptions(options));
+    await browser.close();
+
+    return {
+      statusCode: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "attachment; filename=output.pdf",
+      },
+      body: pdfBuffer.toString("base64"),
+      isBase64Encoded: true,
+    };
   } catch (error) {
-    console.error(error);
-    throw new Error("Failed to generate PDF");
-  } finally {
     if (browser !== null) {
       await browser.close();
     }
+    console.error("Error:", error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Internal Server Error" }),
+    };
   }
-  return result;
 };
