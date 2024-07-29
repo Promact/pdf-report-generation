@@ -1,6 +1,7 @@
 ﻿using PdfSharp.Drawing;
 using PdfSharp.Pdf;
-using System.Diagnostics;
+
+string dest = "invoice.pdf";
 
 // Create a new PDF document
 PdfDocument document = new PdfDocument();
@@ -8,44 +9,83 @@ document.Info.Title = "Invoice";
 
 // Create an empty page
 PdfPage page = document.AddPage();
+
+// Get an XGraphics object for drawing
 XGraphics gfx = XGraphics.FromPdfPage(page);
-XFont fontTitle = new XFont("Verdana", 20, XFontStyleEx.Bold);
-XFont fontSubTitle = new XFont("Verdana", 14, XFontStyleEx.Bold);
-XFont fontRegular = new XFont("Verdana", 12, XFontStyleEx.Regular);
 
-// Draw the title
-gfx.DrawString("INVOICE", fontTitle, XBrushes.Black, new XRect(0, 40, page.Width.Point, 40), XStringFormats.TopCenter);
+// Create fonts
+XFont titleFont = new XFont("Verdana", 20, XFontStyleEx.Regular);
+XFont headerFont = new XFont("Verdana", 14, XFontStyleEx.Regular);
+XFont normalFont = new XFont("Verdana", 12, XFontStyleEx.Regular);
 
-// Draw invoice details
-gfx.DrawString("Invoice Number: 12345", fontRegular, XBrushes.Black, new XRect(40, 100, page.Width.Point, 40), XStringFormats.TopLeft);
-gfx.DrawString("Invoice Date: " + DateTime.Now.ToShortDateString(), fontRegular, XBrushes.Black, new XRect(40, 120, page.Width.Point, 40), XStringFormats.TopLeft);
+// Add a title
+gfx.DrawString("Invoice", titleFont, XBrushes.Black,
+    new XRect(0, 40, page.Width.Point, page.Height.Point),
+    XStringFormats.TopCenter);
 
-// Draw seller details
-gfx.DrawString("Seller:", fontSubTitle, XBrushes.Black, new XRect(40, 160, page.Width.Point, 40), XStringFormats.TopLeft);
-gfx.DrawString("Company Name", fontRegular, XBrushes.Black, new XRect(40, 180, page.Width.Point, 40), XStringFormats.TopLeft);
-gfx.DrawString("Address Line 1", fontRegular, XBrushes.Black, new XRect(40, 200, page.Width.Point, 40), XStringFormats.TopLeft);
-gfx.DrawString("Address Line 2", fontRegular, XBrushes.Black, new XRect(40, 220, page.Width.Point, 40), XStringFormats.TopLeft);
+// Add company information
+gfx.DrawString("Tech Solutions Inc.", headerFont, XBrushes.Black,
+    new XRect(0, 100, page.Width.Point, page.Height.Point),
+    XStringFormats.TopCenter);
+gfx.DrawString("456 Technology Blvd.", normalFont, XBrushes.Black,
+    new XRect(0, 120, page.Width.Point, page.Height.Point),
+    XStringFormats.TopCenter);
+gfx.DrawString("San Francisco, CA, 94107", normalFont, XBrushes.Black,
+    new XRect(0, 140, page.Width.Point, page.Height.Point),
+    XStringFormats.TopCenter);
 
-// Draw buyer details
-gfx.DrawString("Buyer:", fontSubTitle, XBrushes.Black, new XRect(40, 260, page.Width.Point, 40), XStringFormats.TopLeft);
-gfx.DrawString("Customer Name", fontRegular, XBrushes.Black, new XRect(40, 280, page.Width.Point, 40), XStringFormats.TopLeft);
-gfx.DrawString("Customer Address Line 1", fontRegular, XBrushes.Black, new XRect(40, 300, page.Width.Point, 40), XStringFormats.TopLeft);
-gfx.DrawString("Customer Address Line 2", fontRegular, XBrushes.Black, new XRect(40, 320, page.Width.Point, 40), XStringFormats.TopLeft);
+// Add invoice details
+gfx.DrawString("Invoice Number: 001", normalFont, XBrushes.Black,
+    new XRect(40, 180, page.Width.Point, page.Height.Point),
+    XStringFormats.TopLeft);
+gfx.DrawString("Date: " + DateTime.Now.ToString("yyyy-MM-dd"), normalFont, XBrushes.Black,
+    new XRect(40, 200, page.Width.Point, page.Height.Point),
+    XStringFormats.TopLeft);
 
-// Draw the table headers
-gfx.DrawString("Description", fontSubTitle, XBrushes.Black, new XRect(40, 360, page.Width.Point / 2, 40), XStringFormats.TopLeft);
-gfx.DrawString("Amount", fontSubTitle, XBrushes.Black, new XRect(page.Width.Point / 2 + 40, 360, page.Width.Point / 2, 40), XStringFormats.TopLeft);
+// Add a table with invoice items
+int tableStartY = 240;
+int cellHeight = 20;
+int columnQtyX = 40;
+int columnDescriptionX = 85;
+int columnUnitPriceX = 285;
+int columnTotalX = 365;
 
-// Draw the table content
-gfx.DrawString("Item 1", fontRegular, XBrushes.Black, new XRect(40, 380, page.Width.Point / 2, 40), XStringFormats.TopLeft);
-gfx.DrawString("$100.00", fontRegular, XBrushes.Black, new XRect(page.Width.Point / 2 + 40, 380, page.Width.Point / 2, 40), XStringFormats.TopLeft);
+// Header
+gfx.DrawRectangle(XPens.Black, columnQtyX, tableStartY, page.Width.Point - 80, cellHeight);
+gfx.DrawString("Qty", normalFont, XBrushes.Black, new XRect(columnQtyX + 5, tableStartY + 5, 40, cellHeight), XStringFormats.TopLeft);
+gfx.DrawString("Description", normalFont, XBrushes.Black, new XRect(columnDescriptionX + 5, tableStartY + 5, 200, cellHeight), XStringFormats.TopLeft);
+gfx.DrawString("Unit Price", normalFont, XBrushes.Black, new XRect(columnUnitPriceX + 5, tableStartY + 5, 80, cellHeight), XStringFormats.TopLeft);
+gfx.DrawString("Total", normalFont, XBrushes.Black, new XRect(columnTotalX + 5, tableStartY + 5, 80, cellHeight), XStringFormats.TopLeft);
 
-gfx.DrawString("Item 2", fontRegular, XBrushes.Black, new XRect(40, 400, page.Width.Point / 2, 40), XStringFormats.TopLeft);
-gfx.DrawString("$200.00", fontRegular, XBrushes.Black, new XRect(page.Width.Point / 2 + 40, 400, page.Width.Point / 2, 40), XStringFormats.TopLeft);
+// Items
+string[,] items = {
+            { "1", "Wireless Mouse", "$25.00", "$25.00" },
+            { "2", "Mechanical Keyboard", "$75.00", "$150.00" },
+            { "3", "USB-C Hub", "$40.00", "$120.00" }
+        };
 
-gfx.DrawString("Total", fontSubTitle, XBrushes.Black, new XRect(40, 420, page.Width.Point / 2, 40), XStringFormats.TopLeft);
-gfx.DrawString("$300.00", fontSubTitle, XBrushes.Black, new XRect(page.Width.Point / 2 + 40, 420, page.Width.Point / 2, 40), XStringFormats.TopLeft);
+// Draw vertical lines for the table
+gfx.DrawLine(XPens.Black, columnQtyX, tableStartY, columnQtyX, tableStartY + (items.GetLength(0) + 1) * cellHeight);
+gfx.DrawLine(XPens.Black, columnDescriptionX, tableStartY, columnDescriptionX, tableStartY + (items.GetLength(0) + 1) * cellHeight);
+gfx.DrawLine(XPens.Black, columnUnitPriceX, tableStartY, columnUnitPriceX, tableStartY + (items.GetLength(0) + 1) * cellHeight);
+gfx.DrawLine(XPens.Black, columnTotalX, tableStartY, columnTotalX, tableStartY + (items.GetLength(0) + 1) * cellHeight);
+gfx.DrawLine(XPens.Black, page.Width.Point - 40, tableStartY, page.Width.Point - 40, tableStartY + (items.GetLength(0) + 1) * cellHeight);
+
+
+
+for (int i = 0; i < items.GetLength(0); i++)
+{
+    gfx.DrawRectangle(XPens.Black, columnQtyX, tableStartY + (i + 1) * cellHeight, page.Width.Point - 80, cellHeight);
+    gfx.DrawString(items[i, 0], normalFont, XBrushes.Black, new XRect(columnQtyX + 5, tableStartY + (i + 1) * cellHeight + 5, 40, cellHeight), XStringFormats.TopLeft);
+    gfx.DrawString(items[i, 1], normalFont, XBrushes.Black, new XRect(columnDescriptionX + 5, tableStartY + (i + 1) * cellHeight + 5, 200, cellHeight), XStringFormats.TopLeft);
+    gfx.DrawString(items[i, 2], normalFont, XBrushes.Black, new XRect(columnUnitPriceX + 5, tableStartY + (i + 1) * cellHeight + 5, 80, cellHeight), XStringFormats.TopLeft);
+    gfx.DrawString(items[i, 3], normalFont, XBrushes.Black, new XRect(columnTotalX + 5, tableStartY + (i + 1) * cellHeight + 5, 80, cellHeight), XStringFormats.TopLeft);
+}
+
+// Add total amount
+gfx.DrawString("Total Amount: $295.00", normalFont, XBrushes.Black,
+    new XRect(0, tableStartY + (items.GetLength(0) + 2) * cellHeight, page.Width.Point - 40, cellHeight),
+    XStringFormats.TopRight);
 
 // Save the document
-string filename = "Invoice.pdf";
-document.Save(filename);
+document.Save(dest);
