@@ -1,0 +1,66 @@
+﻿@model Invoice
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .total {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Invoice</h1>
+    <p><strong>Invoice Number:</strong> @Model.InvoiceNumber</p>
+    <p><strong>Invoice Date:</strong> @Model.InvoiceDate.ToString("d")</p>
+    <p><strong>Customer Name:</strong> @Model.CustomerName</p>
+    <p><strong>Customer Address:</strong> @Model.CustomerAddress</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.Description</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.UnitPrice.ToString("C")</td>
+                    <td>@item.TotalPrice.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="total">Total Amount</td>
+                <td class="total">@Model.TotalAmount.ToString("C")</td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+</html>
