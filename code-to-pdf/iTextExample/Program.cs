@@ -16,19 +16,21 @@ using (PdfWriter writer = new PdfWriter(dest))
 
         // Add a title
         document.Add(new Paragraph("Invoice")
+            .SetPaddingBottom(15)
             .SetFontSize(20)
             .SetTextAlignment(TextAlignment.CENTER));
 
         // Add company information
-        document.Add(new Paragraph("Company Name")
+        document.Add(new Paragraph("Tech Solutions Inc.")
             .SetFontSize(14)
             .SetTextAlignment(TextAlignment.CENTER));
-        document.Add(new Paragraph("123 Business St.")
+        document.Add(new Paragraph("456 Technology Blvd.")
             .SetFontSize(12)
             .SetTextAlignment(TextAlignment.CENTER));
-        document.Add(new Paragraph("City, State, ZIP")
+        document.Add(new Paragraph("San Francisco, CA, 94107")
             .SetFontSize(12)
             .SetTextAlignment(TextAlignment.CENTER));
+
 
         // Add a blank line
         document.Add(new Paragraph(" "));
@@ -43,18 +45,28 @@ using (PdfWriter writer = new PdfWriter(dest))
         document.Add(new Paragraph(" "));
 
         // Add a table with invoice items
-        Table table = new Table(UnitValue.CreatePercentArray(new float[] { 2, 4, 2, 2 }))
+        Table table = new Table(UnitValue.CreatePercentArray(new float[] { 1, 5, 2, 4 }))
             .UseAllAvailableWidth();
         table.AddHeaderCell("Qty");
         table.AddHeaderCell("Description");
         table.AddHeaderCell("Unit Price");
         table.AddHeaderCell("Total");
 
-        // Sample invoice item
+        // Sample invoice items
         table.AddCell("1");
-        table.AddCell("Sample Product");
-        table.AddCell("$10.00");
-        table.AddCell("$10.00");
+        table.AddCell("Wireless Mouse");
+        table.AddCell("$25.00");
+        table.AddCell("$25.00");
+
+        table.AddCell("2");
+        table.AddCell("Mechanical Keyboard");
+        table.AddCell("$75.00");
+        table.AddCell("$150.00");
+
+        table.AddCell("3");
+        table.AddCell("USB-C Hub");
+        table.AddCell("$40.00");
+        table.AddCell("$120.00");
 
         // Add table to the document
         document.Add(table);
@@ -63,7 +75,7 @@ using (PdfWriter writer = new PdfWriter(dest))
         document.Add(new Paragraph(" "));
 
         // Add total amount
-        document.Add(new Paragraph("Total Amount: $10.00")
+        document.Add(new Paragraph("Total Amount: $295.00")
             .SetFontSize(12)
             .SetTextAlignment(TextAlignment.RIGHT));
 
